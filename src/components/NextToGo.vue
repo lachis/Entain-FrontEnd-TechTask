@@ -1,15 +1,17 @@
-<script setup lang="ts">
+RaceSummaryRaceSummaries<script setup lang="ts">
 import axios from "axios";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, watchEffect, shallowRef } from "vue";
 import { reactive } from "vue";
-import type { NextToGoDataModel } from "@/shared/response.model";
-const state = ref<NextToGoDataModel>({
-    next_to_go_ids: [],
-    race_summaries: {},
-  },
+import type { RaceSummary, ResponseModel } from "@/shared/response.model";
+const state = shallowRef<ResponseModel>({ });
+
+let state2 = ref([{ advertised_start: { seconds: 0}, meeting_name: "", race_number: 0, category_id: ""
+  }]
 );
 
-
+const selectedState =  ref([{ advertised_start: { seconds: 0}, meeting_name: "", race_number: 0, category_id: ""
+  }]
+);
 
 // reactive state
 const categories = [
@@ -33,24 +35,26 @@ const selected = ref({
 });
 
 const instance = axios.create({
-  baseURL: "https://api.neds.com.au/rest/v1/racing/?method=nextraces&count=10",
+  baseURL: "https://api.neds.com.au/rest/v1/racing/?method=nextraces&count=20",
   timeout: 1000,
 });
 
 instance
   .get("")
   .then((response) => {
-    state.value.data = response.data.data;
+    state.value = response.data.data.race_summaries;
+// state2 = response.data.data.race_summaries;
+    // console.warn(response);
 
-    console.warn(response);
   })
   .catch((error) => {});
 
 setInterval(() => {
-  const d = state.value.data.race_summaries;
-  state.value.data.race_summaries = {};
-  state.value.data.race_summaries = d;
+  const d = state.value;
+  state.value =  {};
+  state.value= d;
 }, 1000);
+
 
 function toDateTime(seconds: number): Date {
   const t = new Date(1970, 0, 1); // Epoch
@@ -58,7 +62,17 @@ function toDateTime(seconds: number): Date {
   return t;
 }
 
-watch(selected, (newSelected) => {});
+// watchEffect(() => {
+//   const newSelected = selected.value;
+//   const filterState = state2;
+//   console.warn(filterState);
+//   // const newSelectedState = filterState.filter((f, i) => {
+//   //   return f.category_id === newSelected.id;
+//   // });
+//   // state.value = newSelectedState;
+// })
+
+
 
 function countdown(input: number): string {
   const now = Math.floor(Date.now() / 1000);
@@ -72,7 +86,7 @@ function countdown(input: number): string {
 
 <template>
   <select v-model="selected">
-    <option v-for="option in categories" :value="option.id">
+    <option v-for="option in categories" :value="option">
       {{ option.name }}
     </option>
   </select>
@@ -86,7 +100,8 @@ function countdown(input: number): string {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in state.data.race_summaries">
+      <template v-for="item in state"> 
+      <tr v-if="item.category_id === selected.id">
         <td>
           {{ item.meeting_name }}
         </td>
@@ -95,6 +110,7 @@ function countdown(input: number): string {
         </td>
         <td>{{ countdown(item.advertised_start.seconds) }} seconds</td>
       </tr>
+      </template>
     </tbody>
   </table>
 </template>

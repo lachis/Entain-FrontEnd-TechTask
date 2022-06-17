@@ -1,5 +1,15 @@
 
-export interface NextToGoDataModel {
-  next_to_go_ids: string[];
-  race_summaries: any;
+export interface RaceSummary {
+  meeting_name: string;
+  race_number: number;
+  advertised_start: AdvertisedStart;
+  category_id: string;
+}
+
+export interface ResponseModel {
+  [index: string]: RaceSummary;
+}
+
+export interface AdvertisedStart {
+  seconds: number;
 }
