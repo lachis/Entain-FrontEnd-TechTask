@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NextToGoVue from '@/components/NextToGo.vue';
+import NextToGoVue from "@/components/NextToGo.vue";
 </script>
 
 <template>
