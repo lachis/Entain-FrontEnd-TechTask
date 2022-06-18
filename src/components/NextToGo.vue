@@ -1,11 +1,9 @@
 <script setup lang="ts">
+import type { DropdownOption } from "@/shared/DropdownOption";
+import type { RaceSummary } from "@/shared/RaceSummary";
+import type { ResponseModel } from "@/shared/ResponseModel";
 import axios from "axios";
 import { ref, shallowRef, watch } from "vue";
-import type {
-  DropdownOption,
-  RaceSummary,
-  ResponseModel,
-} from "@/shared/response.model";
 
 const categories: DropdownOption[] = [
   {
@@ -49,6 +47,7 @@ watch(requestState, () => {
   update(selected.value);
 });
 
+// Used for triggering countdown updates
 setInterval(() => {
   if (selectedState.value === undefined || selectedState.value === undefined)
     return;
@@ -60,6 +59,7 @@ setInterval(() => {
   selectedState.value = newVal;
 }, 1000);
 
+// watcher for triggering new fetch when a record is -1.00 minute 
 watch(selectedState, (newVal) => {
   const os = newVal.filter((rs) => {
     if (rs.countdownSeconds <= -60) {
@@ -74,6 +74,7 @@ watch(selectedState, (newVal) => {
   }
 });
 
+// used for fetching data from API
 function fetch() {
   instance.get("").then((response) => {
     const arr: ResponseModel = {};
@@ -92,6 +93,7 @@ function fetch() {
   });
 }
 
+// Fired by watchers to correctly populate selectedState
 function update(option: DropdownOption) {
   let templateArray: any[] = [];
 
@@ -111,12 +113,14 @@ function update(option: DropdownOption) {
   selectedState.value = templateArray;
 }
 
+// assists with populating the countdownSeconds property, ideally would exist on the RaceSummary object
 function updateCountdown(seconds: number): number {
   const now = Math.floor(Date.now() / 1000);
   const countdown = seconds - now;
   return countdown;
 }
 
+// Assists with rendering the countdown in the template
 function countdown(input: number): string {
   if (input < 0 && input > -10) {
     return `-0:0${Math.abs(input)}`;
