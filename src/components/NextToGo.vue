@@ -2,16 +2,12 @@ RaceSummaryRaceSummaries<script setup lang="ts">
 import axios from "axios";
 import { ref, onMounted, watch, watchEffect, shallowRef } from "vue";
 import { reactive } from "vue";
-import type { RaceSummary, ResponseModel } from "@/shared/response.model";
+import type { RaceSummary, ResponseModel, ResponseModel2 } from "@/shared/response.model";
 const state = shallowRef<ResponseModel>({ });
 
-let state2 = ref([{ advertised_start: { seconds: 0}, meeting_name: "", race_number: 0, category_id: ""
-  }]
-);
+const state2 = shallowRef<ResponseModel2>({ });
 
-const selectedState =  ref([{ advertised_start: { seconds: 0}, meeting_name: "", race_number: 0, category_id: ""
-  }]
-);
+const selectedState =  shallowRef<ResponseModel>({});
 
 // reactive state
 const categories = [
@@ -43,6 +39,23 @@ instance
   .get("")
   .then((response) => {
     state.value = response.data.data.race_summaries;
+    // console.warn(state.value);
+    const arr: ResponseModel2 = { };
+    Object
+    .values(response.data.data.race_summaries)
+    .forEach((rs: any) => {
+        if (!arr[rs.category_id]) {
+          arr[rs.category_id] = [];
+        }
+        arr[rs.category_id].push(rs);
+    });
+
+    state2.value = arr;
+
+
+    // console.warn(arr);
+
+    // console.warn(state.value);
 // state2 = response.data.data.race_summaries;
     // console.warn(response);
 
@@ -61,6 +74,10 @@ function toDateTime(seconds: number): Date {
   t.setSeconds(seconds);
   return t;
 }
+
+watch(selected, (newSelected) => {
+
+})
 
 // watchEffect(() => {
 //   const newSelected = selected.value;

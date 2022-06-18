@@ -6,9 +6,15 @@ export interface RaceSummary {
   category_id: string;
 }
 
+export interface ResponseModel2 {
+  [index: string]: RaceSummary[];
+}
+
 export interface ResponseModel {
   [index: string]: RaceSummary;
 }
+
+
 
 export interface AdvertisedStart {
   seconds: number;
